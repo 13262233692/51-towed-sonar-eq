@@ -39,6 +39,26 @@ double compute_mse_complex(const std::vector<std::complex<double>>& a,
 
 bool approximately_equal(double a, double b, double tol = 1e-6);
 
+std::vector<std::complex<double>> generate_step_transient_signal(
+    size_t num_samples,
+    size_t step_position,
+    double pre_gain,
+    double post_gain,
+    double snr_db = 10.0,
+    size_t multipath_taps = 7,
+    double modulus = 1.0
+);
+
+std::vector<uint8_t> generate_thermocline_stream(
+    size_t num_frames,
+    size_t step_frame,
+    double shallow_depth_m,
+    double deep_depth_m,
+    double pre_amplitude,
+    double post_amplitude_spike,
+    double sample_rate_hz = 48000.0
+);
+
 }
 
 #endif

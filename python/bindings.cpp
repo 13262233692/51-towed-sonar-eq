@@ -112,7 +112,8 @@ PYBIND11_MODULE(sonar, m) {
         .def_readwrite("modulus", &CMAConfig::modulus)
         .def_readwrite("leakage", &CMAConfig::leakage)
         .def_readwrite("max_iterations", &CMAConfig::max_iterations)
-        .def_readwrite("convergence_threshold", &CMAConfig::convergence_threshold);
+        .def_readwrite("convergence_threshold", &CMAConfig::convergence_threshold)
+        .def_readwrite("enable_bfp_normalization", &CMAConfig::enable_bfp_normalization);
 
     py::class_<CMAEqualizerResult>(m, "CMAEqualizerResult")
         .def(py::init<>())

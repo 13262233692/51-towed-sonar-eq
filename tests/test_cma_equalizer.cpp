@@ -233,6 +233,138 @@ void test_cma_convergence_curve() {
     }
 }
 
+void test_cma_thermocline_step_transient() {
+    std::cout << "[Test] CMA thermocline step transient (no crash)..." << std::endl;
+
+    const size_t N = 8000;
+    const size_t step = N / 2;
+
+    auto signal = generate_step_transient_signal(N, step, 1.0, 100.0, 8.0, 7, 1.0);
+
+    double pre_max = 0.0, post_max = 0.0;
+    for (size_t i = 0; i < step; ++i) {
+        pre_max = std::max(pre_max, std::abs(signal[i]));
+    }
+    for (size_t i = step; i < N; ++i) {
+        post_max = std::max(post_max, std::abs(signal[i]));
+    }
+    std::cout << "  Pre-step max amp: " << pre_max
+              << ", Post-step max amp: " << post_max << std::endl;
+
+    CMAConfig cfg;
+    cfg.filter_taps = 29;
+    cfg.step_size = 5e-4;
+    cfg.modulus = 1.0;
+    cfg.max_iterations = 150;
+    cfg.enable_bfp_normalization = true;
+
+    CMAEqualizer eq(cfg);
+
+    bool crashed = false;
+    try {
+        auto result = eq.equalize(signal);
+        TEST_ASSERT(result.equalized_signal.size() == N);
+        TEST_ASSERT(result.filter_weights.size() == cfg.filter_taps);
+        TEST_ASSERT(result.iterations_run > 0);
+        TEST_ASSERT(std::isfinite(result.final_mse));
+
+        for (const auto& v : result.equalized_signal) {
+            TEST_ASSERT(std::isfinite(v.real()));
+            TEST_ASSERT(std::isfinite(v.imag()));
+        }
+        for (const auto& w : result.filter_weights) {
+            TEST_ASSERT(std::isfinite(w.real()));
+            TEST_ASSERT(std::isfinite(w.imag()));
+        }
+
+        std::cout << "  Step-transient equalized OK: iterations="
+                  << result.iterations_run
+                  << ", final MSE=" << std::scientific << result.final_mse << std::endl;
+    } catch (const std::exception& e) {
+        crashed = true;
+        std::cerr << "  EXCEPTION caught: " << e.what() << std::endl;
+    }
+    TEST_ASSERT(!crashed);
+}
+
+void test_cma_aligned_remainder_bounds() {
+    std::cout << "[Test] CMA non-aligned remainder boundary guard..." << std::endl;
+
+    for (size_t taps : std::initializer_list<size_t>{7, 9, 15, 17, 23, 25, 31, 33}) {
+        const size_t N = 500 + (taps % 8);
+
+        std::vector<double> real_signal(N);
+        for (size_t i = 0; i < N; ++i) {
+            real_signal[i] = std::sin(0.07 * i) + 0.1 * (i % 13) / 13.0;
+        }
+        if (N > 200) {
+            for (size_t i = 200; i < N; ++i) {
+                real_signal[i] *= 50.0;
+            }
+        }
+
+        CMAConfig cfg;
+        cfg.filter_taps = taps;
+        cfg.step_size = 2e-4;
+        cfg.max_iterations = 30;
+        cfg.enable_bfp_normalization = true;
+
+        CMAEqualizer eq(cfg);
+        bool ok = false;
+        try {
+            auto result = eq.equalize(real_signal);
+            TEST_ASSERT(result.equalized_signal.size() == N);
+            TEST_ASSERT(result.filter_weights.size() == taps);
+            ok = true;
+        } catch (const std::exception& e) {
+            std::cerr << "  taps=" << taps << " threw: " << e.what() << std::endl;
+        }
+        TEST_ASSERT(ok);
+    }
+    std::cout << "  All non-aligned tap counts (7-33) processed without bounds violation" << std::endl;
+}
+
+void test_cma_bfp_normalization_switch() {
+    std::cout << "[Test] CMA BFP normalization on/off consistency..." << std::endl;
+
+    const size_t N = 3000;
+    auto signal = generate_step_transient_signal(N, N/2, 1.0, 25.0, 10.0, 5, 1.0);
+
+    CMAConfig cfg_on, cfg_off;
+    cfg_on.filter_taps = 16;
+    cfg_on.step_size = 1e-3;
+    cfg_on.max_iterations = 50;
+    cfg_on.enable_bfp_normalization = true;
+    cfg_off = cfg_on;
+    cfg_off.enable_bfp_normalization = false;
+
+    CMAEqualizer eq_on(cfg_on);
+    CMAEqualizer eq_off(cfg_off);
+
+    bool on_ok = true, off_ok = true;
+    try {
+        auto r_on = eq_on.equalize(signal);
+        TEST_ASSERT(r_on.equalized_signal.size() == N);
+        TEST_ASSERT(std::isfinite(r_on.final_mse));
+    } catch (const std::exception& e) {
+        on_ok = false;
+        std::cerr << "  BFP=ON threw: " << e.what() << std::endl;
+    }
+
+    try {
+        auto r_off = eq_off.equalize(signal);
+        TEST_ASSERT(r_off.equalized_signal.size() == N);
+        TEST_ASSERT(std::isfinite(r_off.final_mse));
+    } catch (const std::exception& e) {
+        off_ok = false;
+        std::cerr << "  BFP=OFF threw: " << e.what() << std::endl;
+    }
+
+    TEST_ASSERT(on_ok);
+    TEST_ASSERT(off_ok);
+    std::cout << "  Both BFP=ON and BFP=OFF completed successfully" << std::endl;
+}
+
 int main() {
     std::cout << "========================================" << std::endl;
     std::cout << " CMA Blind Equalizer Unit Tests" << std::endl;
@@ -245,6 +377,9 @@ int main() {
     test_cma_config_getset();
     test_cma_edge_cases();
     test_cma_convergence_curve();
+    test_cma_thermocline_step_transient();
+    test_cma_aligned_remainder_bounds();
+    test_cma_bfp_normalization_switch();
 
     std::cout << std::endl;
     std::cout << "========================================" << std::endl;

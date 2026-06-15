@@ -185,6 +185,77 @@ void test_estimate_frame_count() {
     std::cout << "  Estimation correct" << std::endl;
 }
 
+void test_thermocline_step_stream() {
+    std::cout << "[Test] Thermocline dive step stream (no crash)..." << std::endl;
+
+    const size_t num_frames = 10000;
+    const size_t step_frame = 5000;
+
+    auto stream = generate_thermocline_stream(
+        num_frames, step_frame,
+        80.0, 650.0,
+        1.2, 8.0,
+        48000.0
+    );
+
+    HydrophoneUnpacker unpacker;
+    unpacker.set_num_threads(8);
+
+    bool crashed = false;
+    try {
+        auto result = unpacker.unpack_stream(stream);
+
+        TEST_ASSERT(result.valid_frames > 0);
+        TEST_ASSERT(result.valid_frames + result.corrupted_frames <= num_frames);
+
+        double first_depth = -1.0, last_depth = -1.0;
+        if (!result.frames.empty()) {
+            first_depth = result.frames.front().pressure_depth_m;
+            last_depth = result.frames.back().pressure_depth_m;
+        }
+        TEST_ASSERT(first_depth > 0.0);
+        TEST_ASSERT(last_depth > first_depth);
+
+        for (size_t i = 0; i < result.frames.size(); ++i) {
+            for (size_t ch = 0; ch < NUM_HYDROPHONE_CHANNELS; ++ch) {
+                double v = result.frames[i].acoustic_voltage[ch];
+                TEST_ASSERT(std::isfinite(v));
+            }
+        }
+
+        std::cout << "  Frames: " << result.valid_frames
+                  << ", Depth: " << first_depth << " -> " << last_depth << " m"
+                  << ", Time: " << result.processing_time_ms << " ms" << std::endl;
+    } catch (const std::exception& e) {
+        crashed = true;
+        std::cerr << "  EXCEPTION: " << e.what() << std::endl;
+    }
+    TEST_ASSERT(!crashed);
+}
+
+void test_many_threads_boundary() {
+    std::cout << "[Test] Many-thread chunk alignment boundary..." << std::endl;
+
+    for (size_t frames : std::initializer_list<size_t>{7, 15, 31, 63, 127, 255, 511}) {
+        auto stream = generate_thermocline_stream(
+            frames, frames / 2, 50.0, 300.0, 1.0, 5.0, 48000.0);
+
+        HydrophoneUnpacker unpacker;
+        unpacker.set_num_threads(16);
+
+        bool ok = true;
+        try {
+            auto result = unpacker.unpack_stream(stream);
+            TEST_ASSERT(result.valid_frames <= frames);
+        } catch (const std::exception& e) {
+            ok = false;
+            std::cerr << "  frames=" << frames << " threw: " << e.what() << std::endl;
+        }
+        TEST_ASSERT(ok);
+    }
+    std::cout << "  All non-aligned frame counts (7-511) with 16 threads: OK" << std::endl;
+}
+
 int main() {
     std::cout << "========================================" << std::endl;
     std::cout << " Hydrophone Unpacker Unit Tests" << std::endl;
@@ -200,6 +271,8 @@ int main() {
     test_crc_detection();
     test_parallel_accuracy();
     test_estimate_frame_count();
+    test_thermocline_step_stream();
+    test_many_threads_boundary();
 
     std::cout << std::endl;
     std::cout << "========================================" << std::endl;

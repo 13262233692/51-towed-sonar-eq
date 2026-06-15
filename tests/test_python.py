@@ -203,11 +203,14 @@ def test_config_classes():
     check("default filter_taps", cfg.filter_taps == 32)
     check("default step_size", abs(cfg.step_size - 1e-3) < 1e-12)
     check("default modulus", abs(cfg.modulus - 1.0) < 1e-12)
+    check("bfp normalization default True", cfg.enable_bfp_normalization == True)
 
     cfg.filter_taps = 64
     cfg.step_size = 0.01
+    cfg.enable_bfp_normalization = False
     check("filter_taps assignable", cfg.filter_taps == 64)
     check("step_size assignable", abs(cfg.step_size - 0.01) < 1e-12)
+    check("bfp normalization assignable", cfg.enable_bfp_normalization == False)
 
     frame = sonar.HydrophoneFrame()
     frame.timestamp_ns = 1234567890
@@ -219,6 +222,47 @@ def test_config_classes():
     check("frame depth", abs(frame.pressure_depth_m - 150.5) < 1e-10)
     check("frame voltage", abs(frame.acoustic_voltage[0] - 1.23) < 1e-6)
     check("all channels present", len(frame.acoustic_voltage) == 64)
+
+def test_thermocline_step_python():
+    print("\n[Test] Python thermocline step transient stress test")
+
+    np.random.seed(42)
+    N = 6000
+    step = N // 2
+
+    pre = np.exp(1j * np.random.uniform(0, 2 * np.pi, step)) * 1.0
+    post = np.exp(1j * np.random.uniform(0, 2 * np.pi, N - step)) * 80.0
+    symbols = np.concatenate([pre, post])
+
+    h = np.exp(-0.2 * np.arange(7)) * (0.7 + 0.3 * np.random.randn(7))
+    h /= np.sum(np.abs(h))
+    received = np.convolve(symbols, h, mode='full')[:N]
+    noise = np.random.randn(N) + 1j * np.random.randn(N)
+    power_sig = np.mean(np.abs(received) ** 2)
+    power_noise = power_sig / (10 ** (12 / 10))
+    received += noise * np.sqrt(power_noise / 2)
+
+    cfg = sonar.CMAConfig()
+    cfg.filter_taps = 27
+    cfg.step_size = 3e-4
+    cfg.max_iterations = 100
+    cfg.enable_bfp_normalization = True
+
+    eq = sonar.CMAEqualizer(cfg)
+
+    crashed = False
+    try:
+        eq_out, w_out, conv, iters, converged, mse, t_ms = eq.equalize_numpy(received)
+        check("output length matches", len(eq_out) == N)
+        check("weights length matches taps", len(w_out) == cfg.filter_taps)
+        check("all output values finite", np.all(np.isfinite(eq_out)))
+        check("all weight values finite", np.all(np.isfinite(w_out)))
+        check("mse finite", np.isfinite(mse))
+        print(f"  Step transient OK: iters={iters}, mse={mse:.4e}, time={t_ms:.1f}ms")
+    except Exception as e:
+        crashed = True
+        print(f"  CRASH/EXCEPTION: {e}")
+    check("no crash on thermocline step", not crashed)
 
 def main():
     print("=" * 60)
@@ -232,6 +276,7 @@ def main():
     test_cma_equalizer_real()
     test_cma_apply_filter()
     test_config_classes()
+    test_thermocline_step_python()
 
     print("\n" + "=" * 60)
     print(f"  Results: {passed} passed, {failed} failed")
