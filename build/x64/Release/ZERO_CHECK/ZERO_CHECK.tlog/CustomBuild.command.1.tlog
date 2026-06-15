@@ -1,0 +1,10 @@
+^D:\SOLO-11\51-TOWED-SONAR-EQ\BUILD\CMAKEFILES\3778FDB386197ED3B8DBFD50FAF7A650\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/SOLO-11/51-towed-sonar-eq -BD:/SOLO-11/51-towed-sonar-eq/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/SOLO-11/51-towed-sonar-eq/build/towed_sonar_eq.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

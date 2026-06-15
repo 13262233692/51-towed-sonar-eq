@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/SOLO-11/51-towed-sonar-eq/build/cmake_install.cmake",
+		"D:/SOLO-11/51-towed-sonar-eq/build/_deps/pybind11-build/cmake_install.cmake",
+		"D:/SOLO-11/51-towed-sonar-eq/build/tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
