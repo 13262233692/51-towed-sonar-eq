@@ -314,6 +314,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\hydrophone_unpacker.cpp" />
     <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\cma_equalizer.cpp" />
+    <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\acoustic_ray_tracer.cpp" />
+    <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\doppler_resampler.cpp" />
+    <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\spectrum_engine.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

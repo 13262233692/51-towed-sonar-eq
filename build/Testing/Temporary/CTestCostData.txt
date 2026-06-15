@@ -1,4 +1,5 @@
-test_hydrophone_unpacker 5 0.0691817
-test_cma_equalizer 5 0.831542
-test_python_integration 4 0.714519
+test_hydrophone_unpacker 9 0.0153095
+test_cma_equalizer 9 0.227254
+test_python_integration 6 0.171888
+test_doppler_spectrum 4 0.101059
 ---

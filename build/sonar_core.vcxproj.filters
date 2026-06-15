@@ -7,6 +7,15 @@
     <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\cma_equalizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\acoustic_ray_tracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\doppler_resampler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\SOLO-11\51-towed-sonar-eq\src\spectrum_engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\SOLO-11\51-towed-sonar-eq\CMakeLists.txt" />

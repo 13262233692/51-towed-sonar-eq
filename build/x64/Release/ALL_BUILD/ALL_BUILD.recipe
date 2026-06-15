@@ -14,6 +14,9 @@
       <FullPath>D:\SOLO-11\51-towed-sonar-eq\build\tests\Release\test_cma_equalizer.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>D:\SOLO-11\51-towed-sonar-eq\build\tests\Release\test_doppler_spectrum.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>D:\SOLO-11\51-towed-sonar-eq\build\tests\Release\test_hydrophone_unpacker.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>

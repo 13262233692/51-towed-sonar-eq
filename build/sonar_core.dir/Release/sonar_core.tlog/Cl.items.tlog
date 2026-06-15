@@ -1,2 +1,5 @@
 D:\SOLO-11\51-towed-sonar-eq\src\hydrophone_unpacker.cpp;D:\SOLO-11\51-towed-sonar-eq\build\sonar_core.dir\Release\hydrophone_unpacker.obj
 D:\SOLO-11\51-towed-sonar-eq\src\cma_equalizer.cpp;D:\SOLO-11\51-towed-sonar-eq\build\sonar_core.dir\Release\cma_equalizer.obj
+D:\SOLO-11\51-towed-sonar-eq\src\acoustic_ray_tracer.cpp;D:\SOLO-11\51-towed-sonar-eq\build\sonar_core.dir\Release\acoustic_ray_tracer.obj
+D:\SOLO-11\51-towed-sonar-eq\src\doppler_resampler.cpp;D:\SOLO-11\51-towed-sonar-eq\build\sonar_core.dir\Release\doppler_resampler.obj
+D:\SOLO-11\51-towed-sonar-eq\src\spectrum_engine.cpp;D:\SOLO-11\51-towed-sonar-eq\build\sonar_core.dir\Release\spectrum_engine.obj

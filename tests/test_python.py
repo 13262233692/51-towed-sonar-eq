@@ -142,11 +142,12 @@ def test_cma_equalizer_complex():
     cfg.convergence_threshold = 1e-8
 
     eq = sonar.CMAEqualizer(cfg)
-    eq_out, w_out, conv, iters, converged, mse, proc_time = eq.equalize_numpy(received)
+    eq_out, w_out, conv, dop_out, iters, converged, mse, proc_time = eq.equalize_numpy(received)
 
     check("equalized length", len(eq_out) == N)
     check("weights length", len(w_out) == cfg.filter_taps)
     check("convergence curve", len(conv) > 0)
+    check("doppler output type", isinstance(dop_out, np.ndarray))
     check("iterations in range", 0 < iters <= cfg.max_iterations)
     check("processing time positive", proc_time > 0)
     check("MSE is finite", np.isfinite(mse))
@@ -252,7 +253,7 @@ def test_thermocline_step_python():
 
     crashed = False
     try:
-        eq_out, w_out, conv, iters, converged, mse, t_ms = eq.equalize_numpy(received)
+        eq_out, w_out, conv, dop_out, iters, converged, mse, t_ms = eq.equalize_numpy(received)
         check("output length matches", len(eq_out) == N)
         check("weights length matches taps", len(w_out) == cfg.filter_taps)
         check("all output values finite", np.all(np.isfinite(eq_out)))

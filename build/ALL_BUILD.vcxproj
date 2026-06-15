@@ -192,6 +192,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{1D669DA2-1B06-3689-9CF8-341EFC590DE0}</Project>
       <Name>test_cma_equalizer</Name>
     </ProjectReference>
+    <ProjectReference Include="D:\SOLO-11\51-towed-sonar-eq\build\tests\test_doppler_spectrum.vcxproj">
+      <Project>{69C6FC5F-BEE5-3D9A-B487-D7B402EF2E0A}</Project>
+      <Name>test_doppler_spectrum</Name>
+    </ProjectReference>
     <ProjectReference Include="D:\SOLO-11\51-towed-sonar-eq\build\tests\test_hydrophone_unpacker.vcxproj">
       <Project>{4909FD94-FF90-3C6D-99B7-25B59683BE4B}</Project>
       <Name>test_hydrophone_unpacker</Name>

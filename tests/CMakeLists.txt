@@ -16,6 +16,13 @@ add_executable(test_cma_equalizer
 target_link_libraries(test_cma_equalizer PRIVATE sonar_core)
 add_test(NAME test_cma_equalizer COMMAND test_cma_equalizer)
 
+add_executable(test_doppler_spectrum
+    test_doppler_spectrum.cpp
+    test_utils.cpp
+)
+target_link_libraries(test_doppler_spectrum PRIVATE sonar_core)
+add_test(NAME test_doppler_spectrum COMMAND test_doppler_spectrum)
+
 add_executable(generate_test_data
     generate_test_data.cpp
     test_utils.cpp

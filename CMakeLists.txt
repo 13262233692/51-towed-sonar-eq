@@ -25,6 +25,9 @@ option(BUILD_TESTS "Build unit tests" ON)
 add_library(sonar_core STATIC
     src/hydrophone_unpacker.cpp
     src/cma_equalizer.cpp
+    src/acoustic_ray_tracer.cpp
+    src/doppler_resampler.cpp
+    src/spectrum_engine.cpp
 )
 
 target_include_directories(sonar_core PUBLIC
